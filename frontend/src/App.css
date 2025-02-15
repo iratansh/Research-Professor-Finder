@@ -5,28 +5,108 @@
   text-align: center;
 }
 
-
-
 body {
-  background: linear-gradient(45deg, #95b5e5, #3e81de, #115292, #252525, #080808);
-  background-size: 400% 400%;
-  animation: moveBackground 10s infinite linear;
+  background: radial-gradient(circle, #001f3f, #003366, #002244);
+  overflow: hidden;
+  position: relative;
 }
 
-@keyframes moveBackground {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* Container for Constellations */
+.constellations {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Stars (Smaller and Moving) */
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: twinkle 3s infinite alternate, moveStar 10s linear infinite;
+}
+
+/* Moving Stars Animation */
+@keyframes moveStar {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(2vw, -2vh);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+/* Lines Between Stars (Thinner and Slightly Fading) */
+.constellation-line {
+  position: absolute;
+  background: rgba(173, 216, 230, 0.3);
+  width: 1px;
+  height: 1px;
+  transform-origin: left center;
+  animation: fadeLines 5s infinite alternate;
+}
+
+/* Fading Effect for Lines */
+@keyframes fadeLines {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0.2;
+  }
 }
 
 
+.research-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.icon {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  opacity: 0.7;
+  animation: floatAnimation linear infinite;
+}
+
+@keyframes floatAnimation {
+  0% {
+    transform: translateY(100vh) translateX(0) rotate(0deg);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(10vw) rotate(360deg);
+    opacity: 0.5;
+  }
+}
+
+.content {
+  text-align: center;
+}
 .header {
   font-size: 2rem;
 
   transition: text-shadow 0.3s ease-in-out;
-  position: fixed;
-  top: 0;
-  left: 0;
+ 
   width: 100%;
   color: white;
   z-index: 1000; 
@@ -44,3 +124,4 @@ body {
   width: 400px;
   height: 30px;
 }
+
