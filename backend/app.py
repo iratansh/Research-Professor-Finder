@@ -1,19 +1,18 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Dict, Union
-from routes import router
-from text_preprocessor import Preproccessor
+from typing import List
 from pydantic import BaseModel
+from text_preprocessor import Preproccessor
 
-app = FastAPI(
-    title="Keyword Preprocessor API",
-    description="API for preprocessing keyword strings",
-    version="1.0.0"
-)
+app = FastAPI()
+
+keywords_array = []
+
 origins = [
     "http://localhost",
     "http://localhost:5173",
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -22,34 +21,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
+class KeywordsInput(BaseModel):
+    keywords: List[str]
 
-class PreprocessResponse(BaseModel):
-    processed_keywords: Union[List[str], Dict[str, str]]
-    original_input: str
-    status: str = "success"
-
-@app.get("/keywords/{keywords}", response_model=PreprocessResponse)
-async def preprocess_inputs(request: Request, keywords: str):
+@app.post("/keywords")
+async def store_keywords(input_data: KeywordsInput):
     try:
-        if not keywords or keywords.isspace():
-            return HTTPException(
-                status_code=400,
-                detail="Keywords string cannot be empty"
-            )
-            
+        keywords_array.extend(input_data.keywords)
         preprocessor = Preproccessor()
-        processed_result = preprocessor.preprocess(keywords)
-        return PreprocessResponse(
-            processed_keywords=processed_result,
-            original_input=keywords
-        )
-        
+        keywords_array = [preprocessor.preprocess(keyword) for keyword in keywords_array]
+        return {"status": "success", "stored_keywords": keywords_array}
     except Exception as e:
-        return HTTPException(
+        raise HTTPException(
             status_code=500,
-            detail=f"Error processing keywords: {str(e)}"
+            detail=f"Error storing keywords: {str(e)}"
         )
+
 
 if __name__ == "__main__":
     import uvicorn
