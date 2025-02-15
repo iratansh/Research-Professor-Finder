@@ -2,16 +2,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from pydantic import BaseModel
-from text_preprocessor import Preproccessor
+from text_preprocessor import Preprocessor 
 
 app = FastAPI()
+preprocessor = Preprocessor()
 
-keywords_array = []
-
-origins = [
-    "http://localhost",
-    "http://localhost:5173",
-]
+origins = ["http://localhost", "http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,19 +20,17 @@ app.add_middleware(
 class KeywordsInput(BaseModel):
     keywords: List[str]
 
-@app.post("/keywords")
-async def store_keywords(input_data: KeywordsInput):
+@app.post("/match-professors")
+async def match_professors(input_data: KeywordsInput):
     try:
-        keywords_array.extend(input_data.keywords)
-        preprocessor = Preproccessor()
-        keywords_array = [preprocessor.preprocess(keyword) for keyword in keywords_array]
-        return {"status": "success", "stored_keywords": keywords_array}
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error storing keywords: {str(e)}"
-        )
+        processed_keywords = [preprocessor.preprocess(keyword) for keyword in input_data.keywords]
+        combined_query = " ".join(processed_keywords)
 
+        results = [{"name": "Prof", "score": 0.95, "keywords": []}]
+        return {"status": "success", "results": results}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

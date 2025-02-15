@@ -1,9 +1,15 @@
 class QuickSort:
-    def __init__(self, array):
+    def __init__(self, array, epsilon=1e-10):
         self.array = array
+        self.epsilon = epsilon  
+        
+    def is_less_or_equal(self, a, b):
+        return a <= b + self.epsilon
+        
+    def is_greater(self, a, b):
+        return a > b + self.epsilon
         
     def partition(self, low, high):
-
         mid = (low + high) // 2
         pivot_candidates = [
             (low, self.array[low][1]),
@@ -17,7 +23,7 @@ class QuickSort:
         i = low - 1
         
         for j in range(low, high):
-            if self.array[j][1] <= pivot:
+            if self.is_less_or_equal(self.array[j][1], pivot):
                 i += 1
                 self.array[i], self.array[j] = self.array[j], self.array[i]
                 
@@ -28,7 +34,7 @@ class QuickSort:
         for i in range(low + 1, high + 1):
             key = self.array[i]
             j = i - 1
-            while j >= low and self.array[j][1] > key[1]:
+            while j >= low and self.is_greater(self.array[j][1], key[1]):
                 self.array[j + 1] = self.array[j]
                 j -= 1
             self.array[j + 1] = key
