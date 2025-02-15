@@ -1,17 +1,17 @@
-import nltk
-import string
+from nltk.stem import PorterStemmer
+from nltk.corpus import stopwords
 import re
 
-class Preprocessor:
+class Preproccessor:
     def __init__(self):
-        self.stopwords = nltk.corpus.stopwords.words('english')
-        self.punctuations = string.punctuation
-        self.lemmatizer = nltk.stem.WordNetLemmatizer()
+        self.stopwords = stopwords.words('english')
+        self.PorterStemmer = PorterStemmer()
 
     def preprocess(self, text):
         text = text.lower()
-        text = re.sub(r'\d+', '', text)
-        tokens = nltk.word_tokenize(text)
-        tokens = [token for token in tokens if token not in self.stopwords and token not in self.punctuations]
-        tokens = [self.lemmatizer.lemmatize(token) for token in tokens]
+        text = re.sub(r'[^\w\s]', '', text)
+        tokens = text.split()
+        stop_words = set(stopwords.words('english'))
+        tokens = [word for word in tokens if word not in stop_words]
+        tokens = [self.PorterStemmer.stem(word) for word in tokens]
         return ' '.join(tokens)
