@@ -4,7 +4,9 @@ from typing import List
 from pydantic import BaseModel
 from text_preprocessor import Preprocessor
 from similarity_scoring import ProfessorMatcher
-from backend.llm_email import DeepSeekLLM
+import sys
+sys.path.append('backend')
+from llm_email import DeepSeekLLM
 import threading
 
 app = FastAPI()
