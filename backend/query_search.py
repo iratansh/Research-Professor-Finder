@@ -2,7 +2,7 @@ import sqlite3
 from typing import List
 
 class ProfessorSearch:
-    def __init__(self, db_path: str = '../professorInfo.db'):
+    def __init__(self, db_path = './professorInfo.db'):
         self.db_path = db_path
         # Updated search columns: using only non-HTML fields from the new DB schema.
         self.search_columns = [
