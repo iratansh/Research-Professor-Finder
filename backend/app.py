@@ -8,10 +8,12 @@ import sys
 sys.path.append('backend')
 from llm_email import DeepSeekLLM
 import threading
+from query_IDsearch import ProfessorQuery
 
 app = FastAPI()
 preprocessor = Preprocessor()
 matcher = ProfessorMatcher()
+id_search = ProfessorQuery()
 llm = DeepSeekLLM(apiKey="")
 
 origins = ["http://localhost", "http://localhost:5173"]
@@ -31,12 +33,7 @@ class KeywordsInput(BaseModel):
 async def match_professors(input_data: KeywordsInput):
     try:
         processed_keywords = [preprocessor.preprocess(keyword) for keyword in input_data.keywords]
-
-        # pass the professors to ranking model (what should be passed is their keywords or bios)
-        # create a new dict with the professors in ranked order and return for frontend
-        
-
-        results = [{"name": "Prof", "score": 0.95, "keywords": processed_keywords}]
+        results = matcher.get_professors(processed_keywords)
         return {"status": "success", "results": results}
     
     except Exception as e:
@@ -60,6 +57,26 @@ async def email_tips(input_data: KeywordsInput):
         event.wait()
 
         return {"status": "success", "tips": result["tips"]}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+@app.get("/info")
+async def info(primary_key):
+    try:
+        event = threading.Event()
+        result = {"info": None}
+
+        def fetch_info():
+            try:
+                result["info"] = id_search.get_professor_by_id(primary_key)
+            finally:
+                event.set()  
+        thread = threading.Thread(target=fetch_info)
+        thread.start()
+        event.wait()
+
+        return {"status": "success", "info": result["info"]}
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
