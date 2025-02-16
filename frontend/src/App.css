@@ -9,6 +9,7 @@ body {
   background: linear-gradient(45deg, #6795ce, #3e81de, #115292, #252525, #080808);
   background-size: 400% 400%;
   animation: moveBackground 10s infinite linear;
+  cursor: pointer;
 }
 
 @keyframes moveBackground {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./ResultsPage.css";
+import FloatingIcons from "./FloatingIcons";
 
 const ResultsPage = ({ data }) => {
   const professorNames = Object.keys(data).filter((key) => key !== "status");
