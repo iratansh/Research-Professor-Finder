@@ -23,15 +23,3 @@ class ProfessorQuery:
             # Retrieve column names from the cursor description.
             columns = [desc[0] for desc in cursor.description]
             return dict(zip(columns, row))
-
-# Example usage:
-if __name__ == '__main__':
-    db = ProfessorQuery()  # You can pass a custom path if needed.
-    professor_id = 1  # Replace with the desired professor ID.
-    professor = db.get_professor_by_id(professor_id)
-    
-    if professor:
-        print("Professor record found:")
-        print(professor)
-    else:
-        print("No professor found with that ID.")
