@@ -26,7 +26,7 @@ class ProfessorSearch:
         except sqlite3.Error as e:
             raise RuntimeError(f"Database error: {str(e)}") from e
 
-    def _build_query(self, keywords: List[str]):
+    def _build_query(self, keywords: List[str]):``
         match_expressions = []
         params = []
         
