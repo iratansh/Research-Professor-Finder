@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from pydantic import BaseModel
 from text_preprocessor import Preprocessor 
+import threading
 
 app = FastAPI()
 preprocessor = Preprocessor()
