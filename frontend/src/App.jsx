@@ -1,16 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
 
-const researchIcons = [
-  "📖", // Book
-  "💻", // Microscope
-  "📜", // Research Paper
-  "📊", // Data Chart
-  "💡", // Idea/Innovation
-  "🖊️", // Pen
-];
+const researchIcons = ["📖", "💻", "📜", "📊", "💡", "🖊️"];
 
-// Floating Research Icons (No Change)
 const FloatingIcons = () => {
   const icons = Array.from({ length: 10 }).map((_, index) => {
     const randomX = Math.random() * 100;
@@ -36,83 +29,55 @@ const FloatingIcons = () => {
   return <div className="research-bg">{icons}</div>;
 };
 
-// Floating Moving Constellations
-const FloatingConstellations = () => {
-  const [stars, setStars] = useState([]);
-  const [lines, setLines] = useState([]);
+const Home = () => {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    const numStars = 30; // More but smaller stars
-    let starArray = [];
-    let lineArray = [];
-
-    for (let i = 0; i < numStars; i++) {
-      const x = Math.random() * 100;
-      const y = Math.random() * 100;
-      starArray.push({ x, y });
+  const handleSearch = (event) => {
+    if (event.key === "Enter" && searchQuery.trim() !== "") {
+      navigate(`/search/${searchQuery}`);
     }
-
-    // Connecting some stars randomly
-    for (let i = 0; i < numStars - 1; i++) {
-      if (Math.random() > 0.7) { // Lower probability for more space between connections
-        const x1 = starArray[i].x;
-        const y1 = starArray[i].y;
-        const x2 = starArray[i + 1].x;
-        const y2 = starArray[i + 1].y;
-        const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-        const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
-
-        lineArray.push({ x1, y1, length, angle });
-      }
-    }
-
-    setStars(starArray);
-    setLines(lineArray);
-  }, []);
+  };
 
   return (
-    <div className="constellations">
-      {stars.map((star, index) => (
-        <div
-          key={index}
-          className="star"
-          style={{
-            left: `${star.x}vw`,
-            top: `${star.y}vh`,
-            animationDelay: `${Math.random() * 5}s`,
-          }}
-        ></div>
-      ))}
-      {lines.map((line, index) => (
-        <div
-          key={index}
-          className="constellation-line"
-          style={{
-            left: `${line.x1}vw`,
-            top: `${line.y1}vh`,
-            height: "1px",
-            width: `${line.length}vw`,
-            transform: `rotate(${line.angle}deg)`,
-            animationDelay: `${Math.random() * 3}s`,
-          }}
-        ></div>
-      ))}
+    <div className="content">
+      <h1 className="header">Research Prof Finder</h1>
+      <input
+        className="search-bar"
+        type="text"
+        placeholder="Search Professor..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyDown={handleSearch}
+      />
     </div>
   );
 };
 
+const SearchResults = ({ searchQuery }) => {
+  return (
+    <div className="content">
+      <h1 className="header">Results for "{searchQuery}"</h1>
+      <p>Displaying search results...</p>
+    </div>
+  );
+};
+
+const SearchPage = () => {
+  const { searchQuery } = useParams();
+  return <SearchResults searchQuery={searchQuery} />;
+};
+
 function App() {
   return (
-    <div className="app">
+    <Router>
       <FloatingIcons />
-      <FloatingConstellations />
-      <div className="content">
-        <h1 className="header">Research Prof Finder</h1>
-        <input className="search-bar" type="text" placeholder="Search Professor..." />
-      </div>
-    </div>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/search/:searchQuery" element={<SearchPage />} />
+      </Routes>
+    </Router>
   );
 }
 
 export default App;
-
