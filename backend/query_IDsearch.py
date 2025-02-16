@@ -6,12 +6,6 @@ class ProfessorQuery:
         self.db_path = db_path
 
     def get_professor_by_id(self, professor_id: int) -> Optional[Dict[str, Any]]:
-        """
-        Retrieve a professor record by its ID.
-        
-        :param professor_id: The ID of the professor to retrieve.
-        :return: A dictionary of the professor record if found, otherwise None.
-        """
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             query = "SELECT * FROM professors WHERE id = ?"

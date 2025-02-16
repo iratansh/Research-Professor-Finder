@@ -18,26 +18,23 @@ from playwright.async_api import async_playwright, Page, Browser
 #! Constants
 DATABASE_NAME = "professorInfo.db"
 DIRECTORY = "https://apps.ualberta.ca/directory/search/advanced?DepartmentId=200150&AcceptingUndergraduate=False&Refine=true"
-
 global LARGEST_TABLE
 LARGEST_TABLE = 0
 global FACULTY
 FACULTY = ""
 
+# Functions
 async def scrape_professor_detail(page: Page, faculty, rowInfo=None):
     try:
         container = await page.wait_for_selector(".content > .container", timeout=5000)
     except Exception:
-        print("Failed to load professor detail container")
+        print(f"Failed to load professor detail container for {page.url}")
         return
 
-    header_element = await container.query_selector("div.row")
-    header = (await header_element.inner_html()).strip() if header_element else None
+    contact = header = overview = links = courses = email = None
+    header = (await container.query_selector("div.row").inner_html()).strip() or None
     header = re.sub(r"\s+", " ", header).strip()
-
-    # Initialize variables
-    contact = overview = links = courses = email = None
-    text_overview = None  # Ensure text_overview is always defined
+    text_overview = None
     
     card_elements = await container.query_selector_all(".card")
     for card in card_elements:
@@ -89,7 +86,6 @@ async def scrape_professor_from_row(row, faculty, browser: Browser):
     if not href:
         return
     
-    # Use the existing browser instance to create a new page
     prof_page = await browser.new_page()
     try:
         await prof_page.goto("https://apps.ualberta.ca" + href)
@@ -128,6 +124,7 @@ async def process_faculty(page: Page, faculty, browser: Browser):
         [table_task, breadcrumb_task],
         return_when=asyncio.FIRST_COMPLETED
     )
+
     for task in pending:
         task.cancel()
 
@@ -138,7 +135,10 @@ async def process_faculty(page: Page, faculty, browser: Browser):
     else:
         print(f"Could not find table or breadcrumb for faculty {faculty}.")
 
+# Main
 async def main():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
     backup_db = f"{DATABASE_NAME}.old"
     if os.path.exists(backup_db):
         os.remove(backup_db)
@@ -190,5 +190,6 @@ async def main():
         print(f"Largest table: {LARGEST_TABLE} for faculty {FACULTY}")
         await browser.close()
 
+# Run the main function
 if __name__ == '__main__':
     asyncio.run(main())
