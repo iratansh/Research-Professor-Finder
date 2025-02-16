@@ -30,18 +30,21 @@ class ProfessorSearch:
         match_expressions = []
         params = []
         
-        # Build the WHERE clause to match any keyword in any search column.
+        # Build the WHERE clause (6 columns * 2 keywords = 12 placeholders).
         for col in self.search_columns:
-            # For each column, create a condition for each keyword.
             column_conditions = " OR ".join([f"{col} LIKE ?" for _ in keywords])
             match_expressions.append(f"({column_conditions})")
             params.extend([f"%{kw}%" for kw in keywords])
         
-        # Build the match count expression to rank results.
+        # Build the match count expression: for each column, check all keywords.
         match_count_expr = " + ".join(
-            [f"CASE WHEN {col} LIKE ? THEN 1 ELSE 0 END" for col in self.search_columns]
+            [
+                " + ".join([f"CASE WHEN {col} LIKE ? THEN 1 ELSE 0 END" for _ in keywords])
+                for col in self.search_columns
+            ]
         )
-        params.extend([f"%{kw}%" for kw in keywords])
+        # For each column, add parameters for each keyword.
+        params.extend([f"%{kw}%" for col in self.search_columns for kw in keywords])
         
         query = f"""
         SELECT *, ({match_count_expr}) AS match_count
