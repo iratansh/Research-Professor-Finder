@@ -8,32 +8,11 @@ from sqlalchemy import create_engine, text
 
 
 class ProfessorMatcher:
-    def __init__(self, db_url: str, model_name: str = "all-MiniLM-L6-v2"):
-        self.engine = create_engine(db_url)
-        self.model = SentenceTransformer(model_name)
+    def __init__(self):
+        self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.professors: List[Dict] = []
         self.embeddings: np.ndarray = None
         self.professor_search = ProfessorSearch()
-
-    def load_data(self):
-        """Load professor data from SQL database"""
-        with self.engine.connect() as conn:
-            result = conn.execute(
-                text(
-                    """
-                SELECT name, department, research_description 
-                FROM professors
-            """
-                )
-            )
-            self.professors = [dict(row) for row in result]
-
-            if not self.professors:
-                raise ValueError("No professors found in database")
-
-            # Precompute embeddings once
-            descriptions = [p["research_description"] for p in self.professors]
-            self.embeddings = self.model.encode(descriptions)
 
     def get_scores(self, query: str, top_k: int = 10) -> List[Dict]:
         """Return sorted list of professors with scores"""
