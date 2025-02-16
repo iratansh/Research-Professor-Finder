@@ -1,49 +1,54 @@
 import sqlite3
-from typing import List
+from typing import List, Dict
 
 class ProfessorSearch:
-    def __init__(self, db_path = './professorInfo.db'):
+    def __init__(self, db_path='./professorInfo.db'):
         self.db_path = db_path
-        # Updated search columns: using only non-HTML fields from the new DB schema.
         self.search_columns = [
-            'name', 'faculty', 'title', 'phone', 'location', 'text_overview'
+            'name', 'faculty', 'title', 
+            'phone', 'location', 'text_overview'
         ]
-        
-    def search(self, keywords: List[str]):
+
+    def get_all_professors(self) -> List[Dict]:
+        """Get complete professor list"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM professors")
+            return [dict(row) for row in cursor.fetchall()]
+
+    def search(self, keywords: List[str]) -> List[Dict]:
+        """Find professors matching ANY keyword (original implementation)"""
         if not keywords:
             return []
 
         try:
             with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 query, params = self._build_query(keywords)
                 cursor.execute(query, params)
-                results = cursor.fetchall()
-
-                column_names = [desc[0] for desc in cursor.description]
-                return [dict(zip(column_names, row)) for row in results]
+                return [dict(row) for row in cursor.fetchall()]
 
         except sqlite3.Error as e:
             raise RuntimeError(f"Database error: {str(e)}") from e
 
     def _build_query(self, keywords: List[str]):
+        # Original implementation preserved
         match_expressions = []
         params = []
         
-        # Build the WHERE clause (6 columns * 2 keywords = 12 placeholders).
         for col in self.search_columns:
             column_conditions = " OR ".join([f"{col} LIKE ?" for _ in keywords])
             match_expressions.append(f"({column_conditions})")
             params.extend([f"%{kw}%" for kw in keywords])
         
-        # Build the match count expression: for each column, check all keywords.
         match_count_expr = " + ".join(
             [
                 " + ".join([f"CASE WHEN {col} LIKE ? THEN 1 ELSE 0 END" for _ in keywords])
                 for col in self.search_columns
             ]
         )
-        # For each column, add parameters for each keyword.
         params.extend([f"%{kw}%" for col in self.search_columns for kw in keywords])
         
         query = f"""
