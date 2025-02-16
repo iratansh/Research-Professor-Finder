@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from pydantic import BaseModel
-from text_preprocessor import Preprocessor 
+from text_preprocessor import Preprocessor
 from selection_query import ProfessorSearch
 from LLMemail import DeepSeekLLM
 import threading
@@ -29,13 +29,13 @@ class KeywordsInput(BaseModel):
 async def match_professors(input_data: KeywordsInput):
     try:
         processed_keywords = [preprocessor.preprocess(keyword) for keyword in input_data.keywords]
-        professors = professor_search.search(processed_keywords)
+        # professors = professor_search.search(processed_keywords) uncommented for when database is finished
 
         # pass the professors to ranking model (what should be passed is their keywords or bios)
         # create a new dict with the professors in ranked order and return for frontend
         
 
-        results = [{"name": "Prof", "score": 0.95, "keywords": []}]
+        results = [{"name": "Prof", "score": 0.95, "keywords": processed_keywords}]
         return {"status": "success", "results": results}
     
     except Exception as e:

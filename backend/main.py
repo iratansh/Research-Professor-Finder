@@ -27,7 +27,6 @@ professors = [
 # Load ML model
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-
 def calculate_similarity(query: str) -> List[dict]:
     # Encode query and descriptions
     query_embedding = model.encode([query])

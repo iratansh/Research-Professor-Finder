@@ -2,7 +2,7 @@ from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
 import re
 
-class Preproccessor:
+class Preprocessor:
     def __init__(self):
         self.stopwords = stopwords.words('english')
         self.PorterStemmer = PorterStemmer()
