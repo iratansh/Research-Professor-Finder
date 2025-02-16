@@ -3,13 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from pydantic import BaseModel
 from text_preprocessor import Preprocessor
-from selection_query import ProfessorSearch
-from LLMemail import DeepSeekLLM
+from similarity_scoring import ProfessorMatcher
+from backend.llm_email import DeepSeekLLM
 import threading
 
 app = FastAPI()
 preprocessor = Preprocessor()
-professor_search = ProfessorSearch()
+matcher = ProfessorMatcher()
 llm = DeepSeekLLM(apiKey="")
 
 origins = ["http://localhost", "http://localhost:5173"]
@@ -29,7 +29,6 @@ class KeywordsInput(BaseModel):
 async def match_professors(input_data: KeywordsInput):
     try:
         processed_keywords = [preprocessor.preprocess(keyword) for keyword in input_data.keywords]
-        # professors = professor_search.search(processed_keywords) uncommented for when database is finished
 
         # pass the professors to ranking model (what should be passed is their keywords or bios)
         # create a new dict with the professors in ranked order and return for frontend
