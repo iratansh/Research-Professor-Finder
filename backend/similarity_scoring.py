@@ -1,10 +1,9 @@
-from selection_query import ProfessorSearch
+from query_search import ProfessorSearch
 from quick_sort import QuickSort
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from typing import List, Dict
-from sqlalchemy import create_engine, text
 
 
 class ProfessorMatcher:
@@ -14,12 +13,11 @@ class ProfessorMatcher:
         self.embeddings: np.ndarray = None
         self.professor_search = ProfessorSearch()
 
-    def get_scores(self, query: str, top_k: int = 10) -> List[Dict]:
-        """Return sorted list of professors with scores"""
-        if not self.professors:
-            raise RuntimeError("Call load_data() first")
-
-        query_embed = self.model.encode([query])
+    def get_professors(self, keywords, top_k: int = 10) -> List[Dict]:
+        """Return sorted list of professors with scores"""        
+        relevant_profs = self.professor_search.search(keywords)
+        print(relevant_profs)
+        query_embed = self.model.encode(relevant_profs)
         similarities = cosine_similarity(query_embed, self.embeddings)[0]
 
         scored_profs = []
@@ -29,6 +27,10 @@ class ProfessorMatcher:
         qSort = QuickSort(scored_profs)
         return qSort.sort(top_k)
 
+if __name__ == "__main__":
+    keywords = ["machine learning", "healthcare", "Jocelyn King"]
+    matcher = ProfessorMatcher()
+    print(matcher.get_professors(keywords))
 
 """
 THIS IS HOW TO USE 
