@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-export default function EmailTips({ searchQuery }, name) {
+export default function EmailTips({ keyWords }, name) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +15,7 @@ export default function EmailTips({ searchQuery }, name) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ keywords: [searchQuery] }),
+          body: JSON.stringify({ keywords: [keyWords] }),
         });
 
         if (!response.ok) {
