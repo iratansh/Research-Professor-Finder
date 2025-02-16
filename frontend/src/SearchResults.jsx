@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ResultsPage from "./ResultsPage";  // Import ResultsPage
 
 const SearchResults = ({ searchQuery }) => {
   const [results, setResults] = useState([]);
@@ -27,7 +28,7 @@ const SearchResults = ({ searchQuery }) => {
         console.log(data);
 
         if (data.status === "success") {
-          setResults(data.results);
+          setResults(data.results);  // Assuming data.results contains the professors
         } else {
           throw new Error("Error fetching results");
         }
@@ -40,7 +41,7 @@ const SearchResults = ({ searchQuery }) => {
 
     fetchResults();
   }, [searchQuery]);
-
+  let results2 = {JohnAdams: 0, ConnorMcnugget: 6, MilesMorales:7}
   return (
     <div className="content">
       <h1 className="header">Results for "{searchQuery}"</h1>
@@ -49,13 +50,7 @@ const SearchResults = ({ searchQuery }) => {
       ) : error ? (
         <p style={{ color: "red" }}>Error: {error}</p>
       ) : results && results.length > 0 ? (
-        <ul>
-          {results.map((professor, index) => (
-            <li key={index}>
-              {professor.name} - Score: {professor.score}
-            </li>
-          ))}
-        </ul>
+        <ResultsPage data={results2} />  // Call ResultsPage and pass results as data
       ) : (
         <p>No results found.</p>
       )}
