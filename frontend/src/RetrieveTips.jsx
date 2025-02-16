@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const SearchResults = ({ searchQuery }) => {
+export default function EmailTips({ searchQuery }, name) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,7 +10,7 @@ const SearchResults = ({ searchQuery }) => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch("http://localhost:8000/match-professors", {
+        const response = await fetch("http://localhost:8000/email-tips", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -43,24 +43,20 @@ const SearchResults = ({ searchQuery }) => {
 
   return (
     <div className="content">
-      <h1 className="header">Results for "{searchQuery}"</h1>
+      <h1 className="header">
+        Email Tips for <p style={{ textTransform: "capitalize" }}>{name}</p>
+      </h1>
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
         <p style={{ color: "red" }}>Error: {error}</p>
       ) : results && results.length > 0 ? (
         <ul>
-          {results.map((professor, index) => (
-            <li key={index}>
-              {professor.name} - Score: {professor.score}
-            </li>
-          ))}
+          {/* Todo : display the results */}
         </ul>
       ) : (
         <p>No results found.</p>
       )}
     </div>
   );
-};
-
-export default SearchResults;
+}
