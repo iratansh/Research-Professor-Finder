@@ -3,10 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from pydantic import BaseModel
 from text_preprocessor import Preprocessor 
+from selection_query import ProfessorSearch
+from LLMemail import DeepSeekLLM
 import threading
 
 app = FastAPI()
 preprocessor = Preprocessor()
+professor_search = ProfessorSearch()
+llm = DeepSeekLLM(apiKey="")
 
 origins = ["http://localhost", "http://localhost:5173"]
 
@@ -25,10 +29,36 @@ class KeywordsInput(BaseModel):
 async def match_professors(input_data: KeywordsInput):
     try:
         processed_keywords = [preprocessor.preprocess(keyword) for keyword in input_data.keywords]
-        combined_query = " ".join(processed_keywords)
+        professors = professor_search.search(processed_keywords)
+
+        # pass the professors to ranking model (what should be passed is their keywords or bios)
+        # create a new dict with the professors in ranked order and return for frontend
+        
 
         results = [{"name": "Prof", "score": 0.95, "keywords": []}]
         return {"status": "success", "results": results}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+@app.post("/email-tips")
+async def email_tips(input_data: KeywordsInput):
+    try:
+        processed_keywords = [preprocessor.preprocess(keyword) for keyword in input_data.keywords]
+        
+        result = {"tips": None}
+        event = threading.Event()
+
+        def fetch_tips():
+            try:
+                result["tips"] = llm.send_message(processed_keywords)
+            finally:
+                event.set()  
+        thread = threading.Thread(target=fetch_tips)
+        thread.start()
+        event.wait()
+
+        return {"status": "success", "tips": result["tips"]}
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
