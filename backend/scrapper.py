@@ -91,7 +91,6 @@ async def scrape_professor_from_row(row, faculty, browser: Browser):
     prof_page = await browser.new_page()
     try:
         await prof_page.goto("https://apps.ualberta.ca" + href)
-        await prof_page.wait_for_load_state("networkidle")
         await scrape_professor_detail(prof_page, faculty, rowInfo=row)
     except Exception as e:
         link_text = (await link.text_content()).strip() if link else None
@@ -181,8 +180,8 @@ async def main():
             await page.goto(DIRECTORY)
             select_menu = await page.wait_for_selector("#DepartmentId", state="visible")
             await select_menu.select_option(value=dept_value)
+            await page.locator('#Title').fill("professor")
             await page.locator('button', has_text='Search').click()
-
             await process_faculty(page, faculty, browser)
 
         print(f"Largest table: {LARGEST_TABLE} for faculty {FACULTY}")
