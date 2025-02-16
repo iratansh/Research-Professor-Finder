@@ -20,6 +20,7 @@ class ProfessorSearch:
             results = cursor.fetchall()
 
             column_names = [desc[0] for desc in cursor.description]
+            return [dict(zip(column_names, row)) for row in results]
 
     def _build_query(self, keywords: List[str]):
         match_expressions = []
