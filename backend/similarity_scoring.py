@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from typing import List
+from selection_query import ProfessorSearch
+from quick_sort import QuickSort
 
 app = FastAPI(title="Professor Matchmaker", version="1.0")
 
@@ -23,34 +24,45 @@ professors = [
         "research_description": "With the aim of advancing personalized treatment options for complex medical disorders, my professional goal centers around the application of data science and artificial intelligence. My educational background encompasses a master's degree in medical biotechnology specializing in human genetics, a master's degree in computer science, and a Ph.D. in neuropsychiatry focusing on brain imaging in mental disorders. Additionally, I have undergone extensive post-doctoral training at the Alberta Machine Intelligence Institute (AMII), recognized as one of Canada's leading centers of excellence in artificial intelligence. This diverse foundation provides me with a unique perspective and expertise in tackling medical problems through data analytical techniques, while also fostering effective collaboration with experts across disciplines. Over the past decade, I have had the privilege of co-supervising graduate students and international interns in both computing science and biomedical domains. This experience has allowed me to nurture the growth of aspiring researchers while contributing to the development of cutting-edge projects. During this time, my team and I have successfully developed, evaluated, and deployed machine learning models using a wide range of structured and unstructured real-world healthcare datasets. By combining my expertise in medical biotechnology, neuroscience, data science, and artificial intelligence, along with my fervor for interdisciplinary collaboration and mentoring, I am well-equipped to address biomedical challenges with innovative and data-driven approaches.",
     },
 ]
+class ProfessorMatcher:
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        self.model = SentenceTransformer(model_name)
+        self.professors = []
+        self.professor_embeddings = None
+        self.professor_search = ProfessorSearch()
 
-# Load ML model
-model = SentenceTransformer("all-MiniLM-L6-v2")
+    def load_professors(self, professors):
+        self.professors = professors
+        self._precompute_embeddings()
 
-def calculate_similarity(query: str) -> List[dict]:
-    # Encode query and descriptions
-    query_embedding = model.encode([query])
-    descriptions = [p["research_description"] for p in professors]
-    doc_embeddings = model.encode(descriptions)
+    def _precompute_embeddings(self):
+        # todo: precompute embeddings
+        pass
 
-    # Calculate similarities
-    similarities = cosine_similarity(query_embedding, doc_embeddings)[0]
+    def find_similar_professors(self, query, top_k = 10):
+        if not self.professors:
+            raise ValueError("No professors loaded. Call load_professors() first.")
 
-    # Add scores to results
-    results = []
-    for i, prof in enumerate(professors):
-        results.append({**prof, "similarity_score": float(similarities[i])})
+        # todo: incorporate selection_query
+        query_embedding = None
+        
+        similarities = cosine_similarity(query_embedding, self.professor_embeddings)[0]
+        qSort = QuickSort(similarities)
+        ranked_indices = qSort.sort(top_k)
+            
+        results = []
 
-    return sorted(results, key=lambda x: x["similarity_score"], reverse=True)
-
-
-@app.get("/search")
-async def search_professors(query: str):
-    """Search endpoint for professor matching"""
-    return calculate_similarity(query)
+            
+        return results
 
 
-if __name__ == "__main__":
-    import uvicorn
+# @app.get("/search")
+# async def search_professors(query: str):
+#     """Search endpoint for professor matching"""
+#     return calculate_similarity(query)
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# if __name__ == "__main__":
+#     import uvicorn
+
+#     uvicorn.run(app, host="0.0.0.0", port=8000)

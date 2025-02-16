@@ -1,13 +1,13 @@
 class QuickSort:
     def __init__(self, array, epsilon=1e-10):
         self.array = array
-        self.epsilon = epsilon  
+        self.epsilon = epsilon
         
     def is_less_or_equal(self, a, b):
-        return a <= b + self.epsilon
+        return a >= b - self.epsilon
         
     def is_greater(self, a, b):
-        return a > b + self.epsilon
+        return a < b - self.epsilon
         
     def partition(self, low, high):
         mid = (low + high) // 2
@@ -16,7 +16,7 @@ class QuickSort:
             (mid, self.array[mid][1]),
             (high, self.array[high][1])
         ]
-        pivot_idx = sorted(pivot_candidates, key=lambda x: x[1])[1][0]
+        pivot_idx = sorted(pivot_candidates, key=lambda x: x[1], reverse=True)[1][0]
         self.array[pivot_idx], self.array[high] = self.array[high], self.array[pivot_idx]
         pivot = self.array[high][1]
         
@@ -39,23 +39,30 @@ class QuickSort:
                 j -= 1
             self.array[j + 1] = key
 
-    def quicksort(self, low, high):
-        while low < high:
-            if high - low < 10:
-                self.insertion_sort(low, high)
-                return
-                
-            pivot = self.partition(low, high)
+    def quicksort(self, low, high, n):
+        if low >= high or low >= n:
+            return
             
-            if pivot - low < high - pivot:
-                self.quicksort(low, pivot - 1)
-                low = pivot + 1
-            else:
-                self.quicksort(pivot + 1, high)
-                high = pivot - 1
+        if high - low < 10:
+            self.insertion_sort(low, high)
+            return
+            
+        pivot = self.partition(low, high)
+        
+        if pivot >= n:
+            self.quicksort(low, pivot - 1, n)
+        else:
+            self.quicksort(low, pivot - 1, n)
+            self.quicksort(pivot + 1, high, n)
 
-    def sort(self):
+    def sort(self, n):
+        if n <= 0:
+            return []
+        if n > len(self.array):
+            n = len(self.array)
+        
         if len(self.array) <= 1:
             return self.array
-        self.quicksort(0, len(self.array) - 1)
-        return self.array
+            
+        self.quicksort(0, len(self.array) - 1, n)
+        return self.array[:n]
