@@ -13,18 +13,13 @@ class ProfessorSearch:
         if not keywords:
             return []
 
-        try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                query, params = self._build_query(keywords)
-                cursor.execute(query, params)
-                results = cursor.fetchall()
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            query, params = self._build_query(keywords)
+            cursor.execute(query, params)
+            results = cursor.fetchall()
 
-                column_names = [desc[0] for desc in cursor.description]
-                return [dict(zip(column_names, row)) for row in results]
-
-        except sqlite3.Error as e:
-            raise RuntimeError(f"Database error: {str(e)}") from e
+            column_names = [desc[0] for desc in cursor.description]
 
     def _build_query(self, keywords: List[str]):
         match_expressions = []
