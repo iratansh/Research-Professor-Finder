@@ -18,7 +18,7 @@ class ProfessorSearch:
             return [dict(row) for row in cursor.fetchall()]
 
     def search(self, keywords: List[str]) -> List[Dict]:
-        """Find professors matching ANY keyword (original implementation)"""
+        """Find professors matching ANY keyword"""
         if not keywords:
             return []
 
@@ -34,7 +34,6 @@ class ProfessorSearch:
             raise RuntimeError(f"Database error: {str(e)}") from e
 
     def _build_query(self, keywords: List[str]):
-        # Original implementation preserved
         match_expressions = []
         params = []
         
