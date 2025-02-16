@@ -6,7 +6,7 @@
 }
 
 body {
-  background: linear-gradient(45deg, #95b5e5, #3e81de, #115292, #252525, #080808);
+  background: linear-gradient(45deg, #6795ce, #3e81de, #115292, #252525, #080808);
   background-size: 400% 400%;
   animation: moveBackground 10s infinite linear;
 }
@@ -58,7 +58,7 @@ body {
   transition: text-shadow 0.3s ease-in-out;
  
   width: 100%;
-  color: white;
+  color: white; 
   z-index: 1000; 
 }
 
