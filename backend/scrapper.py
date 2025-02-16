@@ -36,7 +36,7 @@ async def scrape_professor_detail(page: Page, faculty, rowInfo=None):
     header = re.sub(r"\s+", " ", header).strip()
 
     # Initialize variables
-    contact = overview = links = courses = None
+    contact = overview = links = courses = email = None
     text_overview = None  # Ensure text_overview is always defined
     
     card_elements = await container.query_selector_all(".card")
@@ -59,6 +59,8 @@ async def scrape_professor_detail(page: Page, faculty, rowInfo=None):
 
     breadcrumb = await page.query_selector('[aria-label="breadcrumb"] li:last-child')
     name = (await breadcrumb.text_content()).strip() if breadcrumb else None
+    email = page.url.split("/")[-1] + "@ualberta.ca"
+
     if name.startswith("Viewing "):
         name = name.removeprefix("Viewing ").strip()
 
@@ -73,8 +75,8 @@ async def scrape_professor_detail(page: Page, faculty, rowInfo=None):
 
     async with aiosqlite.connect(DATABASE_NAME) as db:
         await db.execute(
-            "INSERT INTO professors (faculty, name, html_header, html_contact, html_overview, html_links, html_courses, title, phone, location, text_overview) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (faculty, name, header, contact, overview, links, courses, personTitle, phoneNum, location, text_overview)
+            "INSERT INTO professors (faculty, name, html_header, html_contact, html_overview, html_links, html_courses, title, phone, location, text_overview, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (faculty, name, header, contact, overview, links, courses, personTitle, phoneNum, location, text_overview, email)
         )
         await db.commit()
 
@@ -152,6 +154,7 @@ async def main():
                 title TEXT,
                 phone TEXT,
                 location TEXT,
+                email TEXT,
                 html_header TEXT,
                 html_contact TEXT,
                 html_overview TEXT,
