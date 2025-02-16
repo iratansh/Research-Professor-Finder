@@ -11,7 +11,7 @@ class DeepSeekLLM:
     def send_message(self, interests):
         data = {
             "model": "deepseek/deepseek-chat:free",
-            "messages": [{"role": "user", "content": f"Give me a few tips to email a professor with these interests, if there are any names included in the interests, just disregard them: {interests}"}]
+            "messages": [{"role": "user", "content": f"Give me a few tips to email a professor at the University of Alberta with these interests: {interests}"}]
         }
         response = requests.post(self.apiURL, headers=self.headers, json=data)
         if response.status_code == 200:
