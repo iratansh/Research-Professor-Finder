@@ -100,3 +100,24 @@
     transition: background 0.3s ease;
 }
 
+.icon {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    opacity: 1;
+    animation: floatAnimation linear infinite;
+  }
+  
+  @keyframes floatAnimation {
+    0% {
+      transform: translateY(100vh) translateX(0) rotate(0deg);
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-10vh) translateX(10vw) rotate(360deg);
+      opacity: 0.5;
+    }
+  }

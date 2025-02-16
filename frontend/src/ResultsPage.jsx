@@ -19,6 +19,7 @@ const ResultsPage = ({ data }) => {
 
   return (
     <div className="results-page">
+      <FloatingIcons />
       {/* Flashlight div follows cursor */}
       <div
         className="flashlight"
@@ -26,7 +27,7 @@ const ResultsPage = ({ data }) => {
       ></div>
 
       <div className="results-container">
-        <h1 className="results-header">Professor Results</h1>
+        <h1 className="results-header">Professor Results:</h1>
         <div className="professor-list">
           {professorNames.length > 0 ? (
             professorNames.map((professorName) => (
