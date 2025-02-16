@@ -1,15 +1,18 @@
-/* Smoothly shifting background */
-body {
-    background: linear-gradient(45deg, #ffffff, #959697, #444343, #0a0a0a);
+.results-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #020202, #484646, #101010, #848284);
     background-size: 300% 300%;
-    animation: gradientShift 10s infinite ease-in-out;
-    color: white;
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    overflow: hidden;
+    animation: gradientShift 12s infinite ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Background animation */
+/* Apply animation */
 @keyframes gradientShift {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
@@ -21,9 +24,9 @@ body {
     max-width: 700px;
     margin: 3rem auto;
     padding: 2rem;
-    background-color: rgba(30, 30, 30, 0.9);
+    background-color: rgba(20, 20, 20, 0.9); /* Slightly darker for a deep contrast */
     border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     text-align: center;
     backdrop-filter: blur(8px);
 }
@@ -32,15 +35,18 @@ body {
 .results-header {
     font-size: 2rem;
     font-weight: 600;
-    color: #e0e0e0;
+    color: #f0f0f0;
     margin-bottom: 1.5rem;
+
+    letter-spacing: 1px;
+    transition: text-shadow 0.3s ease-in-out;
 }
 
-
+/* Glowing effect on hover */
 .results-header:hover {
-    text-shadow: 0 0 10px white, 0 0 20px white, 0 0 30px white;
-
+    text-shadow: 0 0 15px #ffffff, 0 0 30px #ffffff, 0 0 45px #ffffff;
 }
+
 /* List of professors */
 .professor-list {
     display: flex;
@@ -54,9 +60,9 @@ body {
     width: 100%;
     max-width: 500px;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     text-align: center;
     font-size: 1.2rem;
     color: #ddd;
@@ -67,12 +73,25 @@ body {
 /* Hover effect */
 .professor-item:hover {
     transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 /* No results message */
 .no-results {
     font-size: 1.2rem;
-    color: #888;
+    color: #777;
     font-style: italic;
 }
+/* Flashlight effect */
+.flashlight {
+    position: fixed;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(255, 255, 0, 0.4) 0%, rgba(255, 255, 0, 0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+    transform: translate(-50%, -50%);
+}
+
+
