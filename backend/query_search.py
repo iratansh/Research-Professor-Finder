@@ -2,21 +2,28 @@ import sqlite3
 from typing import List, Dict, Any
 import sys
 
+
 class ProfessorSearch:
-    def __init__(self, db_path='../professorInfo.db', column_weights: Dict[str, int] = None):
+    def __init__(
+        self, db_path="./professorInfo.db", column_weights: Dict[str, int] = None
+    ):
         self.db_path = db_path
         self.search_columns = [
-            'name', 'faculty', 'title', 
-            'phone', 'location', 'text_overview'
+            "name",
+            "faculty",
+            "title",
+            "phone",
+            "location",
+            "text_overview",
         ]
         if column_weights is None:
             self.column_weights = {
-                'name': 3,           
-                'faculty': 2,
-                'title': 2,
-                'phone': 1,
-                'location': 1,
-                'text_overview': 1
+                "name": 3,
+                "faculty": 2,
+                "title": 2,
+                "phone": 1,
+                "location": 1,
+                "text_overview": 1,
             }
         else:
             self.column_weights = column_weights
@@ -60,7 +67,7 @@ class ProfessorSearch:
                     f"CASE WHEN {col} LIKE ? COLLATE NOCASE THEN {weight} ELSE 0 END"
                 )
                 match_params.append(f"%{kw}%")
-        
+
         # Build expressions and parameters for the WHERE clause
         where_expressions = []
         where_params = []
@@ -68,14 +75,14 @@ class ProfessorSearch:
             conditions = " OR ".join([f"{col} LIKE ? COLLATE NOCASE" for _ in keywords])
             where_expressions.append(f"({conditions})")
             where_params.extend([f"%{kw}%" for kw in keywords])
-        
+
         # Combine parameters: match_count parameters come first because their placeholders
         # appear before those in the WHERE clause in the query.
         params = match_params + where_params
-        
+
         # Join all match expressions with a plus sign to sum up the scores
         match_count_expr = " + ".join(match_count_exprs)
-        
+
         query = f"""
         SELECT *, ({match_count_expr}) AS match_count
         FROM professors
@@ -95,5 +102,4 @@ if __name__ == "__main__":
     # Pass sys.argv[1:] to ensure a list of keywords is used.
     results = search.search(sys.argv[1:])
     for professor in results[:10]:
-        print(professor['name'])
-
+        print(professor["name"])
