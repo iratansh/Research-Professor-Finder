@@ -18,7 +18,6 @@ matcher = ProfessorMatcher()
 matcher.load_data()
 id_search = ProfessorQuery()
 llm = DeepSeekLLM(apiKey="")
-
 origins = ["http://localhost", "http://localhost:5173"]
 
 app.add_middleware(

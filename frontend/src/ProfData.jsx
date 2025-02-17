@@ -37,7 +37,14 @@ const ProfData = () => {
 
       <div className="prof-bio">
         <h2>Biography</h2>
-        <p>{professor.bio || "No biography available."}</p>
+        {professor.html_overview ? (
+          <div
+            dangerouslySetInnerHTML={{ __html: professor.html_overview }}
+            className="prof-html-content"
+          />
+        ) : (
+          <p>No biography available.</p>
+        )}
       </div>
 
       <div className="prof-tips">
