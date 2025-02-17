@@ -1,35 +1,44 @@
-# Research Professor Information
+**Summary**
+Research Professor Finder web application that helps students find and connect with professors at the University of Alberta based on research interests. Here's a breakdown of the key components and technologies:
 
-## Scraper
+**Frontend (React.js):**
+- Built with React and React Router for navigation
+- Features a modern UI with animated backgrounds and floating icons
+- Includes search functionality, professor listings, and detailed professor profiles
+- Uses Tailwind CSS for styling
+- Has email tips generation for contacting professors
+- Implements smooth transitions and loading states
 
-![Scraper Demo](./images/scraper.gif)
+**Backend (Python/FastAPI):**
+- FastAPI server handling API endpoints for:
+  - Professor matching
+  - Email tips generation
+  - Professor information retrieval
+- Features a sophisticated text preprocessing and matching system using:
+  - NLTK for text processing
+  - Sentence Transformers for semantic matching
+  - Cosine similarity for relevance scoring
+  - Custom QuickSort implementation for result ranking
 
-### Overview
-This portion of the project uses Playwright for automated browser scrapping of professor research, overview and email. This is then put into the professorInfo.db which is a sqllite3 database. If there already exists a professorInfo.db, it will get the *.old extension added to it.
+**Data Collection:**
+- Includes a web scraper built with Playwright
+- Asynchronously scrapes professor information from the university directory
+- Stores data in SQLite database with professor details including:
+  - Contact information
+  - Faculty affiliations
+  - Research overviews
+  - Course information
 
-### Prerequisites
-To run the scraper, you will need
-- Python 3.13 or higher
+**Integration with AI:**
+- Uses the DeepSeek LLM through OpenRouter API for generating email tips
+- Implements semantic search using the all-MiniLM-L6-v2 model
 
-### Installation
-1. Create and activate a python virtual environment using the following commands:
-    ```bash
-    python3 -m venv venv
-    source ./venv/bin/activate  # On Windows: `venv\Scripts\activate`
-    ```
+**The architecture follows a modern client-server pattern with:**
+- Clear separation of concerns
+- RESTful API endpoints
+- Efficient data processing
+- Responsive UI design
+- Error handling and loading states
+- Cross-Origin Resource Sharing (CORS) support
 
-2. Then upgrade pip to it's latest version:
-    ```bash
-    pip install --upgrade pip
-    ```
-
-3. Install requirements for the scraper and the browser drivers:
-    ```bash
-    pip install -r requirements.txt && playwright install
-    ```
-
-4. And finally, you can run the Scraper:
-    ```bash
-    python3 ./backend/scraper.py
-    ```
-
+Credits: Ishaan Ratanshi, Taha Kamil, Sayuj Tiwari, Sammipyia Poharel, Ali Zaedi
