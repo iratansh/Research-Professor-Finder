@@ -58,7 +58,6 @@ class DeepSeekLLM:
             raise Exception(f"Request failed: {str(e)}")
 
     async def send_message_async(self, interests):
-        """Async version of send_message for use with asyncio"""
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future = executor.submit(self.send_message, interests)
             try:
