@@ -67,9 +67,7 @@ class DeepSeekLLM:
 
 
 if __name__ == "__main__":
-    llm = DeepSeekLLM(
-        "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"
-    )
+    llm = DeepSeekLLM("")
 
     try:
         start_time = time.time()
