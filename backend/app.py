@@ -17,7 +17,7 @@ preprocessor = Preprocessor()
 matcher = ProfessorMatcher()
 matcher.load_data()
 id_search = ProfessorQuery()
-llm = DeepSeekLLM(apiKey="")
+llm = DeepSeekLLM(apiKey="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")
 origins = ["http://localhost", "http://localhost:5173"]
 
 app.add_middleware(
@@ -41,7 +41,9 @@ class EmailTipsInput(BaseModel):
 @app.post("/match-professors")
 async def match_professors(input_data: KeywordsInput):
     try:
+        logging.info("Received keywords: %s", input_data.keywords)
         processed_keywords = [preprocessor.preprocess(keyword) for keyword in input_data.keywords]
+        logging.info("Processed keywords: %s", processed_keywords)
         results = matcher.get_professors(processed_keywords)
         return {"status": "success", "results": results}
     
