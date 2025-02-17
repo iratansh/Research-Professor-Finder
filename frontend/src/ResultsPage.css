@@ -64,7 +64,7 @@
 .professor-item {
 	display: flex;
 	align-items: center;
-	width: 100%;
+	width: 98%;
 	padding: 10px;
 	background: rgba(255, 255, 255, 0.08);
 	border-radius: 6px;
@@ -147,7 +147,7 @@
 	position: fixed;
 	width: 150px;
 	height: 150px;
-	background: radial-gradient(circle, rgba(251, 255, 0, 0.8) 5%, rgba(0, 140, 255, 0) 40%);
+	background: radial-gradient(circle, rgba(245, 245, 242, 0.8) 5%, rgba(0, 140, 255, 0) 40%);
 	border-radius: 50%;
 	pointer-events: none;
 	mix-blend-mode: soft-light;
