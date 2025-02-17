@@ -48,7 +48,6 @@ const ProfData = () => {
       </div>
 
       <div className="prof-tips">
-        <h2>Tips for Students</h2>
         <EmailTips keywords={keywords} name={professor.name} />
       </div>
     </div>
