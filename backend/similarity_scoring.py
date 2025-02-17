@@ -2,7 +2,7 @@ from quick_sort import QuickSort
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from typing import List, Dict, Tuple
+from typing import List, Dict
 import re
 from query_search import ProfessorSearch
 
@@ -23,7 +23,7 @@ class ProfessorMatcher:
         ]
         self.embeddings = self.model.encode(descriptions)
 
-    def get_professors(self, keywords: List[str], top_k: int = 10):
+    def get_professors(self, keywords, top_k = 10):
         if not self.professors:
             raise RuntimeError("Call load_data() first")
 
@@ -56,31 +56,3 @@ if __name__ == "__main__":
     matcher = ProfessorMatcher()
     matcher.load_data()
     print(matcher.get_professors(keywords))
-
-"""
-THIS IS HOW TO USE 
-# Your teammates will use it like this in their FastAPI code
-matcher = ProfessorMatcher(db_url="postgresql://user:pass@localhost/dbname")
-matcher.load_data()
-
-# For each API request
-results = matcher.get_scores("machine learning healthcare")
-"""
-
-"""
-Output structure:
-[
-    {
-        "name": "Dr. Alice Chen",
-        "department": "Computer Science",
-        "research_description": "...",
-        "similarity_score": 0.92
-    },
-    {
-        "name": "Dr. Maria Lopez",
-        "department": "Engineering", 
-        "research_description": "...",
-        "similarity_score": 0.85
-    }
-]
-"""

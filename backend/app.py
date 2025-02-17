@@ -30,11 +30,13 @@ app.add_middleware(
 class KeywordsInput(BaseModel):
     keywords: List[str]
 
+class PrimaryKeyInput(BaseModel):
+    primary_key: int
+
 @app.post("/match-professors")
 async def match_professors(input_data: KeywordsInput):
     try:
         processed_keywords = [preprocessor.preprocess(keyword) for keyword in input_data.keywords]
-
         results = matcher.get_professors(processed_keywords)
         return {"status": "success", "results": results}
     
@@ -64,7 +66,8 @@ async def email_tips(input_data: KeywordsInput):
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 @app.get("/info")
-async def info(primary_key):
+async def info(input_data: PrimaryKeyInput):
+    primary_key = input_data.primary_key
     try:
         event = threading.Event()
         result = {"info": None}
