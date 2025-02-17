@@ -21,7 +21,7 @@ export default function EmailTips({ keywords, name }) {
       const keywordsPayload = Array.isArray(keywords) ? keywords : [keywords];
 
       try {
-        const minimumLoadingTime = 3000;
+        const minimumLoadingTime = 30000;
         const startTime = Date.now();
 
         const response = await fetch("http://localhost:8000/email-tips", {
@@ -29,7 +29,7 @@ export default function EmailTips({ keywords, name }) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ keywords: keywordsPayload }),
+          body: JSON.stringify({ keywords: keywordsPayload, name: name }),
         });
 
         if (!response.ok) {
@@ -97,7 +97,6 @@ export default function EmailTips({ keywords, name }) {
         ) : results?.status === 'success' ? (
           <div className="prose max-w-none">
             <div className="p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200 whitespace-pre-wrap text-gray-800 leading-relaxed">
-              {/* Render markdown content */}
               <ReactMarkdown>{results.tips}</ReactMarkdown>
             </div>
           </div>

@@ -17,7 +17,7 @@ preprocessor = Preprocessor()
 matcher = ProfessorMatcher()
 matcher.load_data()
 id_search = ProfessorQuery()
-llm = DeepSeekLLM(apiKey="")
+llm = DeepSeekLLM(apiKey="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")
 origins = ["http://localhost", "http://localhost:5173"]
 
 app.add_middleware(
@@ -34,6 +34,10 @@ class KeywordsInput(BaseModel):
 class PrimaryKeyInput(BaseModel):
     primary_key: int
 
+class EmailTipsInput(BaseModel):
+    keywords: List[str]
+    name: str
+
 @app.post("/match-professors")
 async def match_professors(input_data: KeywordsInput):
     try:
@@ -45,16 +49,16 @@ async def match_professors(input_data: KeywordsInput):
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 @app.post("/email-tips")
-async def email_tips(input_data: KeywordsInput):
+async def email_tips(input_data: EmailTipsInput):
     try:
         logging.info("Received keywords: %s", input_data.keywords)
         processed_keywords = [preprocessor.preprocess(keyword) for keyword in input_data.keywords]
         
-        result = {"tips": None}
-        result["tips"] = llm.send_message(processed_keywords)
-        logging.info("Received tips: %s", result["tips"])
+        tips = llm.send_message(processed_keywords, input_data.name)
+        logging.info("Input name: %s", input_data.name)
+        logging.info("Received tips: %s", tips)
         
-        return {"status": "success", "tips": result["tips"]}
+        return {"status": "success", "tips": tips}
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
