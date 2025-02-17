@@ -20,6 +20,6 @@ class DeepSeekLLM:
             raise Exception(f"Request failed with status code {response.status_code}")
         
 if __name__ == "__main__":
-    llm = DeepSeekLLM("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")
+    llm = DeepSeekLLM("")
     response = llm.send_message("machine learning")
     print(response)

@@ -18,9 +18,6 @@ export default function EmailTips({ keywords, name }) {
       setError(null);
 
       const keywordsPayload = Array.isArray(keywords) ? keywords : [keywords];
-      if (!keywordsPayload.includes(name)) {
-        keywordsPayload.push(name);
-      }
 
       try {
         const minimumLoadingTime = 3000;

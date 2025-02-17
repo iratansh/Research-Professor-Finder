@@ -17,7 +17,7 @@ preprocessor = Preprocessor()
 matcher = ProfessorMatcher()
 matcher.load_data()
 id_search = ProfessorQuery()
-llm = DeepSeekLLM(apiKey="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")
+llm = DeepSeekLLM(apiKey="")
 
 origins = ["http://localhost", "http://localhost:5173"]
 
