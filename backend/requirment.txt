@@ -1,0 +1,9 @@
+tqdm
+aiosqlite
+playwright
+sentence_transformers
+numpy
+uvicorn
+autocorrect
+Preprocessor
+fastapi

@@ -23,9 +23,9 @@ To run the scraper, you will need
     pip install --upgrade pip
     ```
 
-3. Install requirements for the scraper and the browser drivers:
+3. Install requirements for the scraper (and also the back end) and the browser drivers:
     ```bash
-    pip install -r requirements.txt && playwright install
+    pip install -r backend/requirements.txt && playwright install
     ```
 
 4. And finally, you can run the Scraper:
