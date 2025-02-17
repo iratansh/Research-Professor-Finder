@@ -13,6 +13,7 @@ const ProfData = () => {
   }
 
   return (
+    <div className = 'background'>
     <div className="prof-data-page">
       <button className="back-button" onClick={() => navigate(-1)}>
         ← Back
@@ -28,7 +29,7 @@ const ProfData = () => {
           <strong>Email:</strong> {professor.email}
         </p>
         <p>
-          <strong>Phone:</strong> {professor.number}
+          <strong>Phone:</strong> {professor.number || "N/A"}
         </p>
         <p>
           <strong>Location:</strong> {professor.location}
@@ -37,20 +38,14 @@ const ProfData = () => {
 
       <div className="prof-bio">
         <h2>Biography</h2>
-        {professor.html_overview ? (
-          <div
-            dangerouslySetInnerHTML={{ __html: professor.html_overview }}
-            className="prof-html-content"
-          />
-        ) : (
-          <p>No biography available.</p>
-        )}
+        <p>{professor.bio || "No biography available."}</p>
       </div>
 
       <div className="prof-tips">
-        <h2>Tips for Students</h2>
+  
         <EmailTips keywords={keywords} name={professor.name} />
       </div>
+    </div>
     </div>
   );
 };
