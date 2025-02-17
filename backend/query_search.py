@@ -1,5 +1,6 @@
 import sqlite3
 from typing import List, Dict, Any
+import sys
 
 class ProfessorSearch:
     def __init__(self, db_path='../professorInfo.db'):
@@ -65,4 +66,4 @@ class ProfessorSearch:
 
 if __name__ == "__main__":
     search = ProfessorSearch()
-    print(search.search(["randy goebel"]))
+    print(search.search([sys.argv[1]]))
