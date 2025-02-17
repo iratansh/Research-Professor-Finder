@@ -1,3 +1,4 @@
+/* Results Page Background */
 .results-page {
   position: fixed;
   top: 0;
@@ -13,46 +14,106 @@
   cursor: url("/cursor.png"), auto;
 }
 
-/* Apply animation */
+/* Gradient Animation */
 @keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-/* Main container */
+/* Results Container */
 .results-container {
-  max-width: 1300px; /* Increased width */
-  width: 95%; /* Responsive width */
-  margin: 3rem auto;
-  padding: 2rem;
-  background-color: rgba(
-    20,
-    20,
-    20,
-    0.9
-  ); /* Slightly darker for a deep contrast */
-  border-radius: 15px;
+  max-width: 1000px;
+  width: 90%;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: rgba(20, 20, 20, 0.9);
+  border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  text-align: left; /* Align text to the left */
-  backdrop-filter: blur(8px);
+  text-align: left;
+  backdrop-filter: blur(6px);
+  max-height: 75vh;
+  overflow-y: auto;
+  scrollbar-gutter: stable; /* Prevents layout shifts */
 }
 
-/* Header styling */
+/* Results Header */
 .results-header {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 600;
   color: #f0f0f0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   letter-spacing: 1px;
-  transition: text-shadow 0.3s ease-in-out;
-  text-align: left; /* Align header to the left */
+}
+
+/* Professor List */
+.professor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem; /* Less spacing for compact look */
+  width: 100%;
+}
+
+/* Professor Item Styling */
+.professor-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-size: 1rem;
+  color: #ddd;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+/* Hover Effect */
+.professor-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Text Alignment */
+.professor-name, .professor-title, .professor-faculty {
+  flex: 1;
+  padding: 5px;
+  white-space: nowrap; /* Prevents text wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Adds "..." for long text */
+}
+
+/* Left, Center, Right Alignment */
+.professor-name { text-align: left; }
+.professor-title { text-align: center; }
+.professor-faculty { text-align: right; }
+
+/* No Results Message */
+.no-results {
+  font-size: 1rem;
+  color: #777;
+  font-style: italic;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 6px; /* Slimmer scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #222;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #777;
 }
 
 /* Glowing effect on hover */
@@ -60,43 +121,10 @@
   text-shadow: 0 0 15px #ffffff, 0 0 30px #ffffff, 0 0 45px #ffffff;
 }
 
-/* List of professors */
-.professor-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  align-items: flex-start; /* Align items to the left */
-  width: 98%; /* Full width */
-  height: auto;
-}
-
-/* Individual professor item */
-.professor-item {
-  width: 100%; /* Full width */
-  max-width: 100%; /* No max-width restriction */
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  text-align: left; /* Align text to the left */
-  font-size: 1.2rem;
-  color: #ddd;
-  font-weight: 500;
-  transition: transform 0.3s ease, background 0.3s ease;
-}
-
 /* Hover effect */
 .professor-item:hover {
   transform: translateY(-5px);
   background: rgba(255, 255, 255, 0.15);
-}
-
-/* No results message */
-.no-results {
-  font-size: 1rem;
-  color: #777777;
-  font-style: italic;
-  text-align: left; /* Align text to the left */
 }
 
 /* Flashlight effect */
@@ -114,60 +142,6 @@
   mix-blend-mode: soft-light;
   transform: translate(-50%, -50%);
   transition: background 0.3s ease;
-}
-
-.icon {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  opacity: 1;
-  animation: floatAnimation linear infinite;
-}
-
-@keyframes floatAnimation {
-  0% {
-    transform: translateY(100vh) translateX(0) rotate(0deg);
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-10vh) translateX(10vw) rotate(360deg);
-    opacity: 0.5;
-  }
-}
-
-.results-container {
-  max-height: 80vh;
-  overflow-y: auto;
-  padding: 16px;
-  border: 1px solid #ccc;
-  margin: 16px;
-}
-
-.professor-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.professor-item {
-  display: flex;
-  border: 1px solid #ccc;
-  background-color: #484646;
-}
-
-.professor-name {
-  text-align: left;
-  flex: 1;
-}
-.professor-title {
-  text-align: center;
-  flex: 1;
-}
-.professor-faculty {
-  text-align: right;
-  flex: 1;
 }
 
 /* Customize scrollbar */
@@ -188,4 +162,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #777; /* Lighter on hover */
 }
-

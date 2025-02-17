@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./ResultsPage.css";
 import FloatingIcons from "./FloatingIcons";
 
 const ResultsPage = ({ data }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleMouseMove = (event) => {
@@ -16,38 +18,29 @@ const ResultsPage = ({ data }) => {
     };
   }, []);
 
+  const handleProfessorClick = (professor) => {
+    navigate(`/professor/${professor.id}`, { state: professor });
+  };
+
   return (
     <div className="results-page">
       <FloatingIcons />
-      <div
-        className="flashlight"
-        style={{ top: `${mousePosition.y}px`, left: `${mousePosition.x}px` }}
-      ></div>
+      <div className="flashlight" style={{ top: `${mousePosition.y}px`, left: `${mousePosition.x}px` }}></div>
 
       <div className="results-container">
         <h1 className="results-header">Professor Results:</h1>
         <div className="professor-list">
           {data.length > 0 ? (
-            data.map((professor, index) => (
-              <div className="professor-item" key={index}>
-                <div 
-                  className="professor-name" 
-                  style={{ textAlign: "left", flex: 1 }}
-                >
-                  {professor.name}
-                </div>
-                <div 
-                  className="professor-title" 
-                  style={{ textAlign: "center", flex: 1 }}
-                >
-                  {professor.title}
-                </div>
-                <div 
-                  className="professor-faculty" 
-                  style={{ textAlign: "right", flex: 1 }}
-                >
-                  {professor.faculty}
-                </div>
+            data.map((professor) => (
+              <div 
+                className="professor-item" 
+                key={professor.id}
+                onClick={() => handleProfessorClick(professor)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="professor-name">{professor.name}</div>
+                <div className="professor-title">{professor.title}</div>
+                <div className="professor-faculty">{professor.faculty}</div>
               </div>
             ))
           ) : (
