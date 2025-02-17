@@ -1,14 +1,14 @@
 # Research Professor Information
 
-## Scrapper
+## Scraper
 
-![Scrapper Demo](./images/scrapper.gif)
+![Scraper Demo](./images/scraper.gif)
 
 ### Overview
 This portion of the project uses Playwright for automated browser scrapping of professor research, overview and email. This is then put into the professorInfo.db which is a sqllite3 database. If there already exists a professorInfo.db, it will get the *.old extension added to it.
 
 ### Prerequisites
-To run the scrapper, you will need
+To run the scraper, you will need
 - Python 3.13 or higher
 
 ### Installation
@@ -23,13 +23,13 @@ To run the scrapper, you will need
     pip install --upgrade pip
     ```
 
-3. Install requirements for the scrapper and the browser drivers:
+3. Install requirements for the scraper and the browser drivers:
     ```bash
     pip install -r requirements.txt && playwright install
     ```
 
-4. And finally, you can run the scrapper:
+4. And finally, you can run the Scraper:
     ```bash
-    python3 ./backend/scrapper.py
+    python3 ./backend/scraper.py
     ```
 

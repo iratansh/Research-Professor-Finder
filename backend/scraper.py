@@ -1,5 +1,5 @@
 ##########################################################################################
-# scrapper.py
+# scraper.py
 # Author: Taha Kamil
 # Description: This is a simple scrapper that uses Playwright to scrape
 #                   the research professors information from a website and stores
@@ -15,7 +15,7 @@ import aiosqlite
 # Third Party Libraries
 from playwright.async_api import async_playwright, Page, Browser
 ##########################################################################################  
-# These are the constants that are used in the scrapper, I just put there here for
+# These are the constants that are used in the scraper, I just put there here for
 # easy access and so that it is visible to the reader of this code.
 #! Constants
 BATCH_SIZE = 50
