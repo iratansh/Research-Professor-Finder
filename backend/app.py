@@ -13,6 +13,7 @@ from query_IDsearch import ProfessorQuery
 app = FastAPI()
 preprocessor = Preprocessor()
 matcher = ProfessorMatcher()
+matcher.load_data()
 id_search = ProfessorQuery()
 llm = DeepSeekLLM(apiKey="")
 
@@ -33,6 +34,7 @@ class KeywordsInput(BaseModel):
 async def match_professors(input_data: KeywordsInput):
     try:
         processed_keywords = [preprocessor.preprocess(keyword) for keyword in input_data.keywords]
+
         results = matcher.get_professors(processed_keywords)
         return {"status": "success", "results": results}
     

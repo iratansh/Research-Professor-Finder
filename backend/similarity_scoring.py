@@ -42,7 +42,7 @@ class ProfessorMatcher:
         ]
         qsort = QuickSort(scored_tuples)
         sorted_tuples = qsort.sort(top_k)
-        return sorted_tuples
+        return [self._get_prof_by_id(pid) for pid, _ in sorted_tuples]
 
     def _clean_query(self, text: str) -> str:
         text = text.lower()
