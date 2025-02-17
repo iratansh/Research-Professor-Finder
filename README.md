@@ -1,4 +1,4 @@
-**Summary**
+## **Summary**
 Research Professor Finder web application that helps students find and connect with professors at the University of Alberta based on research interests. Here's a breakdown of the key components and technologies:
 
 **Frontend (React.js):**
