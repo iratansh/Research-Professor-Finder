@@ -16,7 +16,7 @@ class DeepSeekLLM:
             "messages": [
                 {
                     "role": "user",
-                    "content": f"Generate a professional email template based on the following details:{interests}.The response should include only the email template with no additional commentary, explanations, or conversational elements. Begin directly with the email content and do not include any preamble or closing remarks outside of the email itself.",
+                    "content": f"Generate a professional email template based on the following details: {interests}.The response should include only the email template with no additional commentary, explanations, or conversational elements. Begin directly with the email content and do not include any preamble or closing remarks outside of the email itself.",
                 }
             ],
         }
