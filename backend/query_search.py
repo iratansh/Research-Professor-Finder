@@ -3,7 +3,7 @@ from typing import List, Dict, Any
 import sys
 
 class ProfessorSearch:
-    def __init__(self, db_path='../professorInfo.db'):
+    def __init__(self, db_path='./professorInfo.db'):
         self.db_path = db_path
         self.search_columns = [
             'name', 'faculty', 'title', 
