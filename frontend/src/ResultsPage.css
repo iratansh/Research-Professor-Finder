@@ -80,13 +80,27 @@
 	background: rgba(255, 255, 255, 0.15);
 }
 
-/* Container for the entire professor item */
-.professor-item {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	cursor: pointer;
-	padding: 5px; /* optional padding */
+/* Text Alignment */
+.professor-name,
+.professor-title,
+.professor-faculty {
+	flex: 1;
+	padding: 5px;
+	white-space: nowrap; /* Prevents text wrapping */
+	overflow: hidden;
+	text-overflow: ellipsis; /* Adds "..." for long text */
+}
+
+/* Left, Center, Right Alignment */
+.professor-name {
+	text-align: left;
+}
+.professor-title {
+	text-align: right;
+	color: #999999;
+}
+.professor-faculty {
+	text-align: right;
 }
 
 /* No Results Message */
