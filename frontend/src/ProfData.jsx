@@ -42,7 +42,10 @@ const ProfData = () => {
       </div>
 
       <div className="prof-tips">
+<<<<<<< HEAD
   
+=======
+>>>>>>> c65d2034a894bc0d300a2c073c0cc30f589f16ea
         <EmailTips keywords={keywords} name={professor.name} />
       </div>
     </div>

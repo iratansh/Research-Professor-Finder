@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 
 export default function EmailTips({ keywords, name }) {
   const [results, setResults] = useState(null);
@@ -75,9 +76,14 @@ export default function EmailTips({ keywords, name }) {
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-lg shadow-lg min-h-[200px]">
       <div className="p-8">
+<<<<<<< HEAD
         <h1 className="text-base font-normal mb-6">
           Email Tips for{" "}
           <span className="capitalize">{name}</span>
+=======
+        <h1 className="text-2xl font-bold mb-6">
+          Email Tips for <span className="capitalize">{name}</span>
+>>>>>>> c65d2034a894bc0d300a2c073c0cc30f589f16ea
         </h1>
         
         {loading ? (
@@ -97,7 +103,8 @@ export default function EmailTips({ keywords, name }) {
         ) : results?.status === 'success' ? (
           <div className="prose max-w-none">
             <div className="p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200 whitespace-pre-wrap text-gray-800 leading-relaxed">
-              {results.tips}
+              {/* Render markdown content */}
+              <ReactMarkdown>{results.tips}</ReactMarkdown>
             </div>
           </div>
         ) : (
