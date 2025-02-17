@@ -23,7 +23,7 @@ class ProfessorMatcher:
         ]
         self.embeddings = self.model.encode(descriptions)
 
-    def get_professors(self, keywords, top_k=10):
+    def get_professors(self, keywords, top_k=30):
         if not self.professors:
             raise RuntimeError("Call load_data() first")
 
