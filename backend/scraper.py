@@ -2,8 +2,8 @@
 # scraper.py
 # Author: Taha Kamil
 # Description: This is a simple scrapper that uses Playwright to scrape
-#                   the research professors information from a website and stores
-#                   it into the database.
+#              the research professors information from a website and stores
+#              it into the database.
 ##########################################################################################
 # System libraries
 import os
@@ -15,9 +15,7 @@ import aiosqlite
 # Third Party Libraries
 from playwright.async_api import async_playwright, Page, Browser
 ##########################################################################################  
-# These are the constants that are used in the scraper, I just put there here for
-# easy access and so that it is visible to the reader of this code.
-#! Constants
+# Constants
 BATCH_SIZE = 50
 DATABASE_NAME = "../professorInfo.db"
 DIRECTORY = "https://apps.ualberta.ca/directory/search/advanced?DepartmentId=200150&AcceptingUndergraduate=False&Refine=true"
@@ -27,18 +25,13 @@ global FACULTY
 FACULTY = ""
 
 # Functions
-async def scrape_professor_detail(page: Page, faculty, rowInfo=None):
+async def scrape_professor_detail(page: Page, faculty, db, rowInfo=None):
     container = await page.wait_for_selector(".content > .container", timeout=5000)
 
-    contact = header = overview = links = courses = email = None
-    children = await container.query_selector_all("div.row")
-    if children and len(children) > 1:
-        header_el = children[-1]
-        header = (await header_el.inner_html()).strip() or None
-    else:
-        header = None
-    text_overview = None
-    
+    contact = header = overview = text_overview = links = courses = email = None
+    header_element = await page.query_selector(".content > .container > div.row")
+    header = await header_element.inner_html() if header_element else None
+
     card_elements = await container.query_selector_all(".card")
     for card in card_elements:
         title_el = await card.query_selector(".card-title") or await card.query_selector(".card-header")
@@ -62,10 +55,11 @@ async def scrape_professor_detail(page: Page, faculty, rowInfo=None):
     name = (await breadcrumb.text_content()).strip() if breadcrumb else None
     email = page.url.split("/")[-1] + "@ualberta.ca"
 
-    if name.startswith("Viewing "):
+    if name and name.startswith("Viewing "):
         name = name.removeprefix("Viewing ").strip()
 
     personTitle = phoneNum = location = None
+
     if rowInfo:
         title_el = await rowInfo.query_selector("td:nth-child(2)")
         personTitle = (await title_el.text_content()).strip() if title_el else None
@@ -74,14 +68,37 @@ async def scrape_professor_detail(page: Page, faculty, rowInfo=None):
         location_el = await rowInfo.query_selector("td:nth-child(5)")
         location = (await location_el.inner_text()).strip() if location_el else None
 
-    async with aiosqlite.connect(DATABASE_NAME) as db:
+    def merge_values(existing_val, new_val):
+        if not new_val:
+            return existing_val
+        if not existing_val:
+            return new_val
+        parts = [p.strip() for p in existing_val.split(", ") if p.strip()]
+        if new_val.strip() not in parts:
+            parts.append(new_val.strip())
+        return ", ".join(parts)
+
+    cursor = await db.execute("SELECT faculty, title, phone, location FROM professors WHERE email = ?", (email,))
+    existing = await cursor.fetchone()
+
+    if existing:
+        existing_faculty, existing_title, existing_phone, existing_location = existing
+        new_faculty = merge_values(existing_faculty, faculty)
+        new_title = merge_values(existing_title, personTitle)
+        new_phone = merge_values(existing_phone, phoneNum)
+        new_location = merge_values(existing_location, location)
+        await db.execute(
+            "UPDATE professors SET faculty = ?, title = ?, phone = ?, location = ? WHERE email = ?",
+            (new_faculty, new_title, new_phone, new_location, email)
+        )
+    else:
         await db.execute(
             "INSERT INTO professors (faculty, name, html_header, html_contact, html_overview, html_links, html_courses, title, phone, location, text_overview, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (faculty, name, header, contact, overview, links, courses, personTitle, phoneNum, location, text_overview, email)
         )
-        await db.commit()
+    await db.commit()
 
-async def scrape_professor_from_row(row, faculty, browser: Browser, pbar):
+async def scrape_professor_from_row(row, faculty, browser: Browser, pbar, db):
     link = await row.query_selector(".result-name a")
     if not link:
         pbar.update(1)
@@ -95,23 +112,28 @@ async def scrape_professor_from_row(row, faculty, browser: Browser, pbar):
     prof_page = await browser.new_page()
     try:
         await prof_page.goto("https://apps.ualberta.ca" + href)
-        await scrape_professor_detail(prof_page, faculty, rowInfo=row)
-    except Exception as e:
-        for _ in range(3):
-            await prof_page.goto("https://apps.ualberta.ca" + href)
+        await scrape_professor_detail(prof_page, faculty, db, rowInfo=row)
+    except Exception as initial_exception:
+        success = False
+        for attempt in range(3):
             try:
-                await scrape_professor_detail(prof_page, faculty, rowInfo=row)
+                await prof_page.goto("https://apps.ualberta.ca" + href)
+                await scrape_professor_detail(prof_page, faculty, db, rowInfo=row)
+                success = True
                 break
             except Exception as e:
-                tqdm.tqdm.write(f"\033[93m!! Failed to reload professor page {prof_page.url}. !!\033[0m")
-
-        link_text = (await link.text_content()).strip() if link else None
-        tqdm.tqdm.write(f"\033[91m!! Failed to scrape professor {link_text}: {e} !!\033[0m")
+                tqdm.tqdm.write(
+                    f"\033[93m!! Failed to reload professor page {prof_page.url} on attempt {attempt+1}: {e} !!\033[0m"
+                )
+        if not success:
+            link_text = (await link.text_content()).strip() if link else None
+            tqdm.tqdm.write(
+                f"\033[91m!! Failed to scrape professor {link_text}: {initial_exception} !!\033[0m"
+            )
     finally:
         await prof_page.close()
-        pbar.update(1)
 
-async def scrape_professor_from_table(page: Page, faculty, browser: Browser):
+async def scrape_professor_from_table(page: Page, faculty, browser: Browser, db):
     global LARGEST_TABLE, FACULTY
     rows = await page.query_selector_all("table > tbody > tr")
 
@@ -119,16 +141,16 @@ async def scrape_professor_from_table(page: Page, faculty, browser: Browser):
         LARGEST_TABLE = len(rows)
         FACULTY = faculty
 
-    pbar = tqdm.tqdm(total=len(rows), desc=f"⚠️  {faculty.split("-")[0].strip()}", leave=False, position=0)
+    pbar = tqdm.tqdm(total=len(rows), desc=f"⚠️  {faculty.split('-')[0].strip()}", leave=False, position=0)
 
     for j in range(0, len(rows), BATCH_SIZE):
         batch = rows[j:j+BATCH_SIZE]
-        tasks = [scrape_professor_from_row(row, faculty, browser, pbar) for row in batch]
+        tasks = [scrape_professor_from_row(row, faculty, browser, pbar, db) for row in batch]
         await asyncio.gather(*tasks)
     
     pbar.close()
 
-async def process_faculty(page: Page, faculty, browser: Browser):
+async def process_faculty(page: Page, faculty, browser: Browser, db):
     table_task = asyncio.create_task(
         page.wait_for_selector("table")
     )
@@ -147,9 +169,9 @@ async def process_faculty(page: Page, faculty, browser: Browser):
         task.cancel()
 
     if table_task in done and not table_task.exception():
-        await scrape_professor_from_table(page, faculty, browser)
+        await scrape_professor_from_table(page, faculty, browser, db)
     elif breadcrumb_task in done and not breadcrumb_task.exception():
-        await scrape_professor_detail(page, faculty)
+        await scrape_professor_detail(page, faculty, db)
     else:
         tqdm.tqdm.write(f"Could not find table or breadcrumb for faculty {faculty}.")
 
@@ -181,40 +203,39 @@ async def main():
         """)
         await db.commit()
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        page = await browser.new_page()
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
 
-        await page.goto(DIRECTORY)
-        select_menu = await page.wait_for_selector("#DepartmentId", state="visible")
-        option_elements = await select_menu.query_selector_all("option")
+            await page.goto(DIRECTORY)
+            select_menu = await page.wait_for_selector("#DepartmentId", state="visible")
+            option_elements = await select_menu.query_selector_all("option")
 
-        departments = []
-        for idx in range(2, len(option_elements)):
-            value = await option_elements[idx].get_attribute("value")
-            faculty = (await option_elements[idx].text_content()).strip()
-            departments.append((value, faculty))
+            departments = []
+            for idx in range(2, len(option_elements)):
+                value = await option_elements[idx].get_attribute("value")
+                faculty = (await option_elements[idx].text_content()).strip()
+                departments.append((value, faculty))
 
-        with tqdm.tqdm(total=len(departments), desc="Total Progress", position=1) as dept_pbar:
-            for dept_value, faculty in departments:
-                try:
-                    await page.goto(DIRECTORY)
-                    select_menu = await page.wait_for_selector("#DepartmentId", state="visible")
-                    await select_menu.select_option(value=dept_value)
-                    await page.locator('#Title').fill("professor")
-                    await page.locator('button', has_text='Search').click()
-                    await process_faculty(page, faculty, browser)
-                except Exception as e:
-                    # Failure message with red background and off white text
-                    tqdm.tqdm.write(f"❌ {faculty}")
-                else:
-                    # Success message with green background and off white text
-                    tqdm.tqdm.write(f"✅ {faculty}")
-                dept_pbar.update(1)
-            
+            with tqdm.tqdm(total=len(departments), desc="Total Progress", position=1) as dept_pbar:
+                for dept_value, faculty in departments:
+                    try:
+                        await page.goto(DIRECTORY)
+                        select_menu = await page.wait_for_selector("#DepartmentId", state="visible")
+                        await select_menu.select_option(value=dept_value)
+                        await page.locator('#Title').fill("professor")
+                        await page.locator('button', has_text='Search').click()
+                        await process_faculty(page, faculty, browser, db)
+                    except Exception as e:
+                        tqdm.tqdm.write(f"❌ {faculty}")
+                    else:
+                        tqdm.tqdm.write(f"✅ {faculty}")
+                    dept_pbar.update(1)
 
-        tqdm.tqdm.write(f"Largest table: {LARGEST_TABLE} for {FACULTY}")
-        await browser.close()
+                # Close the browser only once after processing all departments
+                await browser.close()
+
+            tqdm.tqdm.write(f"Largest table: {LARGEST_TABLE} for {FACULTY}")
 
 # Run the main function
 if __name__ == '__main__':

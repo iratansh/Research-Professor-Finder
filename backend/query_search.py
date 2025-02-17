@@ -1,8 +1,8 @@
 import sqlite3
-from typing import List, Dict
+from typing import List, Dict, Any
 
 class ProfessorSearch:
-    def __init__(self, db_path='./professorInfo.db'):
+    def __init__(self, db_path='../professorInfo.db'):
         self.db_path = db_path
         self.search_columns = [
             'name', 'faculty', 'title', 
@@ -10,17 +10,17 @@ class ProfessorSearch:
         ]
 
     def get_all_professors(self) -> List[Dict]:
-        """Get complete professor list"""
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM professors")
             return [dict(row) for row in cursor.fetchall()]
 
-    def search(self, keywords: List[str]) -> List[Dict]:
-        """Find professors matching ANY keyword"""
+    def search(self, keywords: List[Any]) -> List[Dict]:
         if not keywords:
             return []
+
+        keywords = [str(kw) for kw in keywords]
 
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -34,30 +34,35 @@ class ProfessorSearch:
             raise RuntimeError(f"Database error: {str(e)}") from e
 
     def _build_query(self, keywords: List[str]):
-        match_expressions = []
+        expressions = []
         params = []
-        
         for col in self.search_columns:
-            column_conditions = " OR ".join([f"{col} LIKE ?" for _ in keywords])
-            match_expressions.append(f"({column_conditions})")
+            conditions = " OR ".join([f"{col} LIKE ? COLLATE NOCASE" for _ in keywords])
+            expressions.append(f"({conditions})")
             params.extend([f"%{kw}%" for kw in keywords])
         
-        match_count_expr = " + ".join(
-            [
-                " + ".join([f"CASE WHEN {col} LIKE ? THEN 1 ELSE 0 END" for _ in keywords])
-                for col in self.search_columns
-            ]
-        )
-        params.extend([f"%{kw}%" for col in self.search_columns for kw in keywords])
+        match_count_exprs = []
+        for col in self.search_columns:
+            for _ in keywords:
+                match_count_exprs.append(f"CASE WHEN {col} LIKE ? COLLATE NOCASE THEN 1 ELSE 0 END")
+
+        for col in self.search_columns:
+            for kw in keywords:
+                params.append(f"%{kw}%")
         
+        match_count_expr = " + ".join(match_count_exprs)
+
         query = f"""
         SELECT *, ({match_count_expr}) AS match_count
         FROM professors
-        WHERE {" OR ".join(match_expressions)}
+        WHERE {" OR ".join(expressions)}
         ORDER BY match_count DESC;
         """
-        
         return query, params
 
     def set_search_columns(self, columns: List[str]):
         self.search_columns = columns
+
+if __name__ == "__main__":
+    search = ProfessorSearch()
+    print(search.search(["randy goebel"]))
