@@ -2,7 +2,7 @@ import sqlite3
 from typing import Optional, Dict, Any
 
 class ProfessorQuery:
-    def __init__(self, db_path: str = '../professorInfo.db'):
+    def __init__(self, db_path: str = './professorInfo.db'):
         self.db_path = db_path
 
     def get_professor_by_id(self, professor_id: int) -> Optional[Dict[str, Any]]:
