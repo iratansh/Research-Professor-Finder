@@ -16,7 +16,7 @@ class DeepSeekLLM:
             "messages": [
                 {
                     "role": "user",
-                    "content": f"Only respond with the email template, nothing else. Keep these interests in mind when writing the email. Make sure it is easily copyable, and not in markdown or thats not easily copyable into gmail: {interests}",
+                    "content": f"Generate a professional email template based on the following details:{interests}.The response should include only the email template with no additional commentary, explanations, or conversational elements. Begin directly with the email content and do not include any preamble or closing remarks outside of the email itself.",
                 }
             ],
         }
