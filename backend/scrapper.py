@@ -14,9 +14,12 @@ import aiosqlite
 
 # Third Party Libraries
 from playwright.async_api import async_playwright, Page, Browser
-
+##########################################################################################  
+# These are the constants that are used in the scrapper, I just put there here for
+# easy access and so that it is visible to the reader of this code.
 #! Constants
-DATABASE_NAME = "professorInfo.db"
+BATCH_SIZE = 50
+DATABASE_NAME = "../professorInfo.db"
 DIRECTORY = "https://apps.ualberta.ca/directory/search/advanced?DepartmentId=200150&AcceptingUndergraduate=False&Refine=true"
 global LARGEST_TABLE
 LARGEST_TABLE = 0
@@ -25,15 +28,15 @@ FACULTY = ""
 
 # Functions
 async def scrape_professor_detail(page: Page, faculty, rowInfo=None):
-    try:
-        container = await page.wait_for_selector(".content > .container", timeout=5000)
-    except Exception:
-        print(f"Failed to load professor detail container for {page.url}")
-        return
+    container = await page.wait_for_selector(".content > .container", timeout=5000)
 
     contact = header = overview = links = courses = email = None
-    header = (await container.query_selector("div.row").inner_html()).strip() or None
-    header = re.sub(r"\s+", " ", header).strip()
+    children = await container.query_selector_all("div.row")
+    if children and len(children) > 1:
+        header_el = children[-1]
+        header = (await header_el.inner_html()).strip() or None
+    else:
+        header = None
     text_overview = None
     
     card_elements = await container.query_selector_all(".card")
@@ -41,6 +44,7 @@ async def scrape_professor_detail(page: Page, faculty, rowInfo=None):
         title_el = await card.query_selector(".card-title") or await card.query_selector(".card-header")
         title = (await title_el.text_content()).strip() if title_el else ""
         body_el = await card.query_selector(".card-body")
+
         if not body_el:
             continue
 
@@ -77,13 +81,15 @@ async def scrape_professor_detail(page: Page, faculty, rowInfo=None):
         )
         await db.commit()
 
-async def scrape_professor_from_row(row, faculty, browser: Browser):
+async def scrape_professor_from_row(row, faculty, browser: Browser, pbar):
     link = await row.query_selector(".result-name a")
     if not link:
+        pbar.update(1)
         return
 
     href = await link.get_attribute("href")
     if not href:
+        pbar.update(1)
         return
     
     prof_page = await browser.new_page()
@@ -91,10 +97,19 @@ async def scrape_professor_from_row(row, faculty, browser: Browser):
         await prof_page.goto("https://apps.ualberta.ca" + href)
         await scrape_professor_detail(prof_page, faculty, rowInfo=row)
     except Exception as e:
+        for _ in range(3):
+            await prof_page.goto("https://apps.ualberta.ca" + href)
+            try:
+                await scrape_professor_detail(prof_page, faculty, rowInfo=row)
+                break
+            except Exception as e:
+                tqdm.tqdm.write(f"\033[93m!! Failed to reload professor page {prof_page.url}. !!\033[0m")
+
         link_text = (await link.text_content()).strip() if link else None
-        print(f"Failed to scrape professor {link_text}: {e}")
+        tqdm.tqdm.write(f"\033[91m!! Failed to scrape professor {link_text}: {e} !!\033[0m")
     finally:
         await prof_page.close()
+        pbar.update(1)
 
 async def scrape_professor_from_table(page: Page, faculty, browser: Browser):
     global LARGEST_TABLE, FACULTY
@@ -104,11 +119,14 @@ async def scrape_professor_from_table(page: Page, faculty, browser: Browser):
         LARGEST_TABLE = len(rows)
         FACULTY = faculty
 
-    batch_size = 50
-    for j in tqdm.tqdm(range(0, len(rows), batch_size), desc=f"Scraping {faculty} professors", position=1, leave=False):
-        batch = rows[j:j+batch_size]
-        tasks = [scrape_professor_from_row(row, faculty, browser) for row in batch]
+    pbar = tqdm.tqdm(total=len(rows), desc=f"⚠️  {faculty.split("-")[0].strip()}", leave=False, position=0)
+
+    for j in range(0, len(rows), BATCH_SIZE):
+        batch = rows[j:j+BATCH_SIZE]
+        tasks = [scrape_professor_from_row(row, faculty, browser, pbar) for row in batch]
         await asyncio.gather(*tasks)
+    
+    pbar.close()
 
 async def process_faculty(page: Page, faculty, browser: Browser):
     table_task = asyncio.create_task(
@@ -133,12 +151,10 @@ async def process_faculty(page: Page, faculty, browser: Browser):
     elif breadcrumb_task in done and not breadcrumb_task.exception():
         await scrape_professor_detail(page, faculty)
     else:
-        print(f"Could not find table or breadcrumb for faculty {faculty}.")
+        tqdm.tqdm.write(f"Could not find table or breadcrumb for faculty {faculty}.")
 
 # Main
 async def main():
-    os.system('cls' if os.name == 'nt' else 'clear')
-
     backup_db = f"{DATABASE_NAME}.old"
     if os.path.exists(backup_db):
         os.remove(backup_db)
@@ -179,15 +195,25 @@ async def main():
             faculty = (await option_elements[idx].text_content()).strip()
             departments.append((value, faculty))
 
-        for dept_value, faculty in tqdm.tqdm(departments, desc="Scraping departments", position=0):
-            await page.goto(DIRECTORY)
-            select_menu = await page.wait_for_selector("#DepartmentId", state="visible")
-            await select_menu.select_option(value=dept_value)
-            await page.locator('#Title').fill("professor")
-            await page.locator('button', has_text='Search').click()
-            await process_faculty(page, faculty, browser)
+        with tqdm.tqdm(total=len(departments), desc="Total Progress", position=1) as dept_pbar:
+            for dept_value, faculty in departments:
+                try:
+                    await page.goto(DIRECTORY)
+                    select_menu = await page.wait_for_selector("#DepartmentId", state="visible")
+                    await select_menu.select_option(value=dept_value)
+                    await page.locator('#Title').fill("professor")
+                    await page.locator('button', has_text='Search').click()
+                    await process_faculty(page, faculty, browser)
+                except Exception as e:
+                    # Failure message with red background and off white text
+                    tqdm.tqdm.write(f"❌ {faculty}")
+                else:
+                    # Success message with green background and off white text
+                    tqdm.tqdm.write(f"✅ {faculty}")
+                dept_pbar.update(1)
+            
 
-        print(f"Largest table: {LARGEST_TABLE} for faculty {FACULTY}")
+        tqdm.tqdm.write(f"Largest table: {LARGEST_TABLE} for {FACULTY}")
         await browser.close()
 
 # Run the main function
