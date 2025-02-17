@@ -29,7 +29,7 @@ export default function EmailTips({ keywords, name }) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ keywords: keywordsPayload }),
+          body: JSON.stringify({ keywords: keywordsPayload, name: name }),
         });
 
         if (!response.ok) {
