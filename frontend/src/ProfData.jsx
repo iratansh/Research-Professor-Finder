@@ -13,6 +13,7 @@ const ProfData = () => {
   }
 
   return (
+    
     <div className="prof-data-page">
       <button className="back-button" onClick={() => navigate(-1)}>
         ← Back
@@ -22,16 +23,16 @@ const ProfData = () => {
 
       <div className="prof-info">
         <p>
-          <strong>Title:</strong> {professor.title}
+          <strong>Title:</strong> {professor.title || 'N/A'}
         </p>
         <p>
-          <strong>Email:</strong> {professor.email}
+          <strong>Email:</strong> {professor.email || 'N/A'}
         </p>
         <p>
-          <strong>Phone:</strong> {professor.number}
+          <strong>Phone:</strong> {professor.number || 'N/A'}
         </p>
         <p>
-          <strong>Location:</strong> {professor.location}
+          <strong>Location:</strong> {professor.location || 'N/A'}
         </p>
       </div>
 
@@ -51,6 +52,7 @@ const ProfData = () => {
         <EmailTips keywords={keywords} name={professor.name} />
       </div>
     </div>
+    
   );
 };
 
