@@ -13,7 +13,6 @@ const ProfData = () => {
   }
 
   return (
-    <div className = 'background'>
     <div className="prof-data-page">
       <button className="back-button" onClick={() => navigate(-1)}>
         ← Back
@@ -42,13 +41,9 @@ const ProfData = () => {
       </div>
 
       <div className="prof-tips">
-<<<<<<< HEAD
-  
-=======
->>>>>>> c65d2034a894bc0d300a2c073c0cc30f589f16ea
+        <h2>Tips for Students</h2>
         <EmailTips keywords={keywords} name={professor.name} />
       </div>
-    </div>
     </div>
   );
 };
