@@ -43,8 +43,12 @@ class ProfessorSearch:
         if not keywords:
             return []
 
-        # Ensure we have a list of string keywords
         keywords = [str(kw) for kw in keywords]
+
+        flattened_keywords = []
+        for keyword in keywords:
+            flattened_keywords.extend(keyword.split())
+        keywords = flattened_keywords
 
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -56,6 +60,7 @@ class ProfessorSearch:
 
         except sqlite3.Error as e:
             raise RuntimeError(f"Database error: {str(e)}") from e
+
 
     def _build_query(self, keywords: List[str]):
         match_count_exprs = []
