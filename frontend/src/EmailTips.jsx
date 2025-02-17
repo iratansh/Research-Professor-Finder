@@ -76,14 +76,8 @@ export default function EmailTips({ keywords, name }) {
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-lg shadow-lg min-h-[200px]">
       <div className="p-8">
-<<<<<<< HEAD
-        <h1 className="text-base font-normal mb-6">
-          Email Tips for{" "}
-          <span className="capitalize">{name}</span>
-=======
         <h1 className="text-2xl font-bold mb-6">
           Email Tips for <span className="capitalize">{name}</span>
->>>>>>> c65d2034a894bc0d300a2c073c0cc30f589f16ea
         </h1>
         
         {loading ? (
