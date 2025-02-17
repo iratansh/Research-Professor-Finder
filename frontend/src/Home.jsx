@@ -13,11 +13,11 @@ export default function Home() {
   
     return (
       <div className="content">
-        <h1 className="header">Research Prof Finder</h1>
+        <h1 className="header">Find My Prof</h1>
         <input
           className="search-bar"
           type="text"
-          placeholder="Enter Professor or Research Interests..."
+          placeholder="Enter Research Interests..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleSearch}
