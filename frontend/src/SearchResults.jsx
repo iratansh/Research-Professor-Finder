@@ -50,7 +50,7 @@ const SearchResults = ({ searchQuery }) => {
       ) : error ? (
         <p style={{ color: "red" }}>Error: {error}</p>
       ) : results && results.length > 0 ? (
-        <ResultsPage data={results} />  
+        <ResultsPage data={results} keywords={searchQuery}/>  
       ) : (
         <p>No results found.</p>
       )}

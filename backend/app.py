@@ -9,13 +9,15 @@ sys.path.append('backend')
 from llm_email import DeepSeekLLM
 import threading
 from query_IDsearch import ProfessorQuery
+import logging
 
+logging.basicConfig(level=logging.INFO)
 app = FastAPI()
 preprocessor = Preprocessor()
 matcher = ProfessorMatcher()
 matcher.load_data()
 id_search = ProfessorQuery()
-llm = DeepSeekLLM(apiKey="")
+llm = DeepSeekLLM(apiKey="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")
 
 origins = ["http://localhost", "http://localhost:5173"]
 
@@ -46,20 +48,13 @@ async def match_professors(input_data: KeywordsInput):
 @app.post("/email-tips")
 async def email_tips(input_data: KeywordsInput):
     try:
+        logging.info("Received keywords: %s", input_data.keywords)
         processed_keywords = [preprocessor.preprocess(keyword) for keyword in input_data.keywords]
         
         result = {"tips": None}
-        event = threading.Event()
-
-        def fetch_tips():
-            try:
-                result["tips"] = llm.send_message(processed_keywords)
-            finally:
-                event.set()  
-        thread = threading.Thread(target=fetch_tips)
-        thread.start()
-        event.wait()
-
+        result["tips"] = llm.send_message(processed_keywords)
+        logging.info("Received tips: %s", result["tips"])
+        
         return {"status": "success", "tips": result["tips"]}
     
     except Exception as e:
